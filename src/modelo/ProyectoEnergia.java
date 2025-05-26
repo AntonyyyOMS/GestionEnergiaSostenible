@@ -19,7 +19,6 @@ public class ProyectoEnergia implements Cloneable {
         this.tipoFuente = tipoFuente;
         this.capacidadMW = capacidadMW;
     }
-
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

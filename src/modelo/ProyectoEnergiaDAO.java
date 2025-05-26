@@ -1,27 +1,15 @@
 package modelo;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.sql.CallableStatement;
-import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.ResultSet; // Aunque no se usa directamente en esta versión simplificada, se mantiene por el CallableStatement
+import java.sql.SQLException;
 import java.sql.Types;
 
 public class ProyectoEnergiaDAO {
 
-    private static Map<String, ProyectoEnergia> prototipos = new HashMap<>();
-
-    static {
-        prototipos.put("Solar", new ProyectoEnergia("Solar"));
-        prototipos.put("Eolico", new ProyectoEnergia("Eolico"));
-        prototipos.put("Hidroelectrico", new ProyectoHidroelectrico("Hidroelectrico"));
-        prototipos.put("Biomasa", new ProyectoEnergia("Biomasa"));
-    }
-
-    public ProyectoEnergia crearProyectoEnergia(String tipoFuente) {
-        // Usamos la factoría para obtener el prototipo
-        return ProyectoEnergiaFactory.crearProyecto(tipoFuente);
+    public ProyectoEnergiaDAO() {
+        // Constructor vacío o puedes inicializar algo si es necesario
     }
 
     public int ejecutarCRUD(String operacion, ProyectoEnergia proyecto) {
@@ -31,40 +19,49 @@ public class ProyectoEnergiaDAO {
 
         try {
             con = ConexionBD.getInstancia().getConexion();
+            if (con == null || con.isClosed()) {
+                System.err.println("Error: No hay conexión a la base de datos disponible.");
+                return -1;
+            }
+
             stmt = con.prepareCall("{call sp_crud_proyectoEnergia(?, ?, ?, ?, ?, ?)}");
             stmt.setString(1, operacion);
-            stmt.setObject(2, "CREATE".equals(operacion) ? null : proyecto.getId());
-            stmt.setString(3, proyecto.getNombreProyecto());
-            stmt.setString(4, proyecto.getTipoFuente());
-            stmt.setDouble(5, proyecto.getCapacidadMW());
+
+            // Solo para CREATE, los otros parámetros son null
+            if (operacion.equals("CREATE")) {
+                stmt.setNull(2, Types.INTEGER); // ID es nulo para CREATE
+                stmt.setString(3, proyecto.getNombreProyecto());
+                stmt.setString(4, proyecto.getTipoFuente());
+                stmt.setDouble(5, proyecto.getCapacidadMW());
+            } else {
+                // Si llegamos aquí con otra operación que no sea CREATE, es un error
+                // en este módulo simplificado, o los parámetros serían diferentes.
+                stmt.setNull(2, Types.INTEGER);
+                stmt.setNull(3, Types.VARCHAR);
+                stmt.setNull(4, Types.VARCHAR);
+                stmt.setNull(5, Types.DOUBLE);
+            }
+           
             stmt.registerOutParameter(6, Types.INTEGER);
 
-            boolean tieneResultado = stmt.execute();
-
-            if ("READ".equals(operacion) && tieneResultado) {
-                ResultSet rs = stmt.getResultSet();
-                while (rs.next()) {
-                    ProyectoEnergia p = new ProyectoEnergia();
-                    p.setId(rs.getInt("id"));
-                    p.setNombreProyecto(rs.getString("nombreProyecto"));
-                    p.setTipoFuente(rs.getString("tipoFuente"));
-                    p.setCapacidadMW(rs.getDouble("CapacidadMW")); // Asegúrate de que "CapacidadMW" coincida con tu base de datos
-                    System.out.println(p);
-                }
-            } else if ("CREATE".equals(operacion)) {
-                resultado = stmt.getInt(6);
+            // Para CREATE, ejecutamos y obtenemos el resultado del OUT parameter
+            if ("CREATE".equals(operacion)) {
+                stmt.execute();
+                resultado = stmt.getInt(6); // Obtener el ID generado
             } else {
-                resultado = stmt.executeUpdate();
+                System.err.println("Operación no soportada en este módulo simplificado del DAO.");
+                resultado = -1;
             }
+
         } catch (SQLException e) {
-            System.err.println("Error en ejecutarCRUD: " + e.getMessage());
+            System.err.println("Error en ejecutarCRUD para CREATE: " + e.getMessage());
             e.printStackTrace();
+            resultado = -1; // Indicar error
         } finally {
             try {
                 if (stmt != null) {
                     stmt.close();
                 }
-                // No cerramos la conexión aquí, ya que es manejada por el Singleton
             } catch (SQLException e) {
                 System.err.println("Error al cerrar el statement: " + e.getMessage());
             }

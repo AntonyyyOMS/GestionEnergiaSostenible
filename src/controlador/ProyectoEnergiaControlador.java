@@ -1,49 +1,33 @@
 package controlador;
 
-import modelo.ProyectoEnergia;
-import modelo.ProyectoEnergiaFacade;
-import vista.ProyectoEnergiaVista; // Asumo que tienes esta clase, aunque no me la pasaste completamente
+import vista.ProyectoEnergiaVista;
+import javax.swing.JTextArea;
+import modelo.ProyectoEnergia; // Importar ProyectoEnergia si no está ya
 
 public class ProyectoEnergiaControlador {
 
     private ProyectoEnergiaFacade proyectoEnergiaFacade;
-    private ProyectoEnergiaVista proyectoEnergiaVista; // Debes tener esta clase en tu proyecto
+    private ProyectoEnergiaVista proyectoEnergiaVista;
 
-    public ProyectoEnergiaControlador() {
+    // Constructor modificado para recibir el JTextArea de la GUI
+    public ProyectoEnergiaControlador(JTextArea outputArea) {
         this.proyectoEnergiaFacade = new ProyectoEnergiaFacade();
-        // Asegúrate de que esta clase exista y tenga los métodos mostrarMensaje y mostrarDetallesProyecto
-        this.proyectoEnergiaVista = new ProyectoEnergiaVista();
+        this.proyectoEnergiaVista = new ProyectoEnergiaVista(outputArea); // Pasa el JTextArea a la vista
     }
 
-    public void crearProyectoEnergia(String nombre, String tipoFuente, double capacidad) {
+    public int crearProyectoEnergia(String nombre, String tipoFuente, double capacidad) {
+        // El controlador solo se encarga de la creación base en la BD.
+        // No necesita saber sobre la confirmación de la GUI.
         int idCreado = proyectoEnergiaFacade.crearProyectoEnergia(nombre, tipoFuente, capacidad);
-        if (idCreado > 0) {
-            proyectoEnergiaVista.mostrarMensaje("Proyecto creado con ID: " + idCreado);
-        } else {
-            proyectoEnergiaVista.mostrarMensaje("Error al crear el proyecto.");
-        }
+        return idCreado; // Devuelve el ID para que la GUI pueda usarlo
     }
 
-    public void mostrarDetallesProyecto(int id, String tipoFuente) {
-        ProyectoEnergia proyecto = proyectoEnergiaFacade.obtenerProyectoEnergia(id, tipoFuente);
+    // Métodos para mostrar mensajes a través de la vista (opcional, podrías hacerlo directamente en la GUI)
+    public void mostrarMensaje(String mensaje) {
+        proyectoEnergiaVista.mostrarMensaje(mensaje);
+    }
+    
+    public void mostrarDetallesProyecto(ProyectoEnergia proyecto) {
         proyectoEnergiaVista.mostrarDetallesProyecto(proyecto);
-    }
-
-    public void actualizarProyectoEnergia(int id, String nombre, String tipoFuente, double capacidad) {
-        int filasAfectadas = proyectoEnergiaFacade.actualizarProyectoEnergia(id, nombre, tipoFuente, capacidad);
-        if (filasAfectadas > 0) {
-            proyectoEnergiaVista.mostrarMensaje("Proyecto actualizado.");
-        } else {
-            proyectoEnergiaVista.mostrarMensaje("Error al actualizar el proyecto.");
-        }
-    }
-
-    public void eliminarProyectoEnergia(int id, String tipoFuente) {
-        int filasAfectadas = proyectoEnergiaFacade.eliminarProyectoEnergia(id, tipoFuente);
-        if (filasAfectadas > 0) {
-            proyectoEnergiaVista.mostrarMensaje("Proyecto eliminado.");
-        } else {
-            proyectoEnergiaVista.mostrarMensaje("Error al eliminar el proyecto.");
-        }
     }
 }
