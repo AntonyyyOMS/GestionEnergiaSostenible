@@ -1,185 +1,253 @@
 package vista;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import controlador.ProyectoEnergiaControlador;
-import modelo.ProyectoEnergia; // Sigue siendo necesario para el modelo base
+import modelo.CommandManager;
+import modelo.ProyectoEnergia;
 
-public class ProyectoEnergiaCardGUI extends JFrame implements ActionListener {
-
-    // Componentes para Crear Proyecto
-    private JTextField crearNombreTextField, crearCapacidadTextField;
-    private JComboBox<String> crearTipoFuenteComboBox;
-    private JButton crearButton;
-
-    private JTextArea detallesTextArea; // Área para mostrar mensajes y resultados
-
-    // Instancia del controlador
+public class ProyectoEnergiaCardGUI extends JFrame {
+    private JTabbedPane tabbedPane;
+    private JTextArea logArea;
     private ProyectoEnergiaControlador controlador;
+    private CommandManager commandManager;
 
     public ProyectoEnergiaCardGUI() {
-        setTitle("Gestión de Proyectos de Energía Sostenible - Crear Proyecto");
+        setTitle("Sistema de Gestión de Energía Sostenible");
+        setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(550, 400); // Tamaño ajustado para solo el módulo de crear y el checkbox
-        setLayout(new BorderLayout());
-        // Usar color de la paleta para el fondo principal
-        getContentPane().setBackground(PaletaUI.FONDO_PRINCIPAL_BLANCO_CALIDO);
+        setLocationRelativeTo(null);
 
-        // Inicializar el controlador, pasándole el JTextArea para mensajes
-        detallesTextArea = new JTextArea();
-        detallesTextArea.setEditable(false);
-        detallesTextArea.setLineWrap(true);
-        detallesTextArea.setWrapStyleWord(true);
-        detallesTextArea.setBackground(PaletaUI.FONDO_SECCIONES_AZUL_CLARO); // Color de fondo para el área de texto
-        detallesTextArea.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO); // Color de texto principal
-        JScrollPane scrollPane = new JScrollPane(detallesTextArea);
-        scrollPane.setPreferredSize(new Dimension(480, 150)); // Ajusta el tamaño
-
-        this.controlador = new ProyectoEnergiaControlador(detallesTextArea);
-
-        // Panel Crear
-        JPanel crearPanel = new JPanel(new GridBagLayout());
-        crearPanel.setBackground(PaletaUI.FONDO_PRINCIPAL_BLANCO_CALIDO); // Usar color de la paleta
-        crearPanel.setBorder(BorderFactory.createLineBorder(PaletaUI.BORDES_SOMBRAS_GRIS_CLARO, 2)); // Borde suave
-        addCrearComponents(crearPanel);
-
-        add(crearPanel, BorderLayout.CENTER);
-        add(scrollPane, BorderLayout.SOUTH); // Añade el área de texto en la parte inferior
-
-        // Muestra un mensaje inicial
-        detallesTextArea.append("Aplicación de Gestión de Proyectos de Energía Iniciada.\n");
-        detallesTextArea.append("Intentando conectar a la base de datos a través del Modelo...\n");
-
+        initComponents();
+        applyModernStyles();
+        setupControlador();
         setVisible(true);
-        setLocationRelativeTo(null); // Centra la ventana en la pantalla
     }
+    
+     private void initComponents() {
+        // Panel principal con diseño mejorado
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        mainPanel.setBackground(PaletaUI.BLANCO_NUBE);
 
-    private void addCrearComponents(JPanel panel) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8); // Margen entre componentes ajustado
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // Crear pestañas con iconos
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // Nombre
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        JLabel nombreLabel = new JLabel("Nombre del Proyecto:");
-        nombreLabel.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO);
-        panel.add(nombreLabel, gbc);
-        gbc.gridx = 1;
-        crearNombreTextField = new JTextField(25);
-        crearNombreTextField.setBackground(PaletaUI.FONDO_SECCIONES_AZUL_CLARO);
-        crearNombreTextField.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO);
-        crearNombreTextField.setBorder(BorderFactory.createLineBorder(PaletaUI.BORDES_SOMBRAS_GRIS_CLARO, 1));
-        panel.add(crearNombreTextField, gbc);
+        // Módulo 1: Registro de Consumo
+        ModuloRegistroConsumoGUI moduloRegistro = new ModuloRegistroConsumoGUI();
+        tabbedPane.addTab("Registro de Consumo", crearIcono("⚡", PaletaUI.AMARILLO_SOLAR), moduloRegistro);
+        aplicarEstilosTabla(moduloRegistro.getTabla()); // Aplicar estilos a la tabla del moduloRegistro
 
-        // Tipo de Fuente
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        JLabel tipoFuenteLabel = new JLabel("Tipo de Fuente:");
-        tipoFuenteLabel.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO);
-        panel.add(tipoFuenteLabel, gbc);
-        gbc.gridx = 1;
-        String[] tiposFuente = {"Solar", "Eólica", "Hidroeléctrica", "Geotérmica", "Biomasa"};
-        crearTipoFuenteComboBox = new JComboBox<>(tiposFuente);
-        crearTipoFuenteComboBox.setBackground(PaletaUI.FONDO_SECCIONES_AZUL_CLARO);
-        crearTipoFuenteComboBox.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO);
-        panel.add(crearTipoFuenteComboBox, gbc);
+        // Módulo 2: Sugerencias de Eficiencia
+        ModuloSugerenciasEficienciaGUI moduloSugerencias = new ModuloSugerenciasEficienciaGUI();
+        tabbedPane.addTab("Sugerencias de Eficiencia", crearIcono("💡", PaletaUI.VERDE_SUSTENTABLE), moduloSugerencias);
+        // Este modulo no tiene tabla, se omite aplicarEstilosTabla
 
-        // Capacidad
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        JLabel capacidadLabel = new JLabel("Capacidad (MW):");
-        capacidadLabel.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO);
-        panel.add(capacidadLabel, gbc);
-        gbc.gridx = 1;
-        crearCapacidadTextField = new JTextField(25);
-        crearCapacidadTextField.setBackground(PaletaUI.FONDO_SECCIONES_AZUL_CLARO);
-        crearCapacidadTextField.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO);
-        crearCapacidadTextField.setBorder(BorderFactory.createLineBorder(PaletaUI.BORDES_SOMBRAS_GRIS_CLARO, 1));
-        panel.add(crearCapacidadTextField, gbc);
+        // Módulo 3: Gestión de Proyectos
+        ModuloGestionProyectosGUI moduloProyectos = new ModuloGestionProyectosGUI();
+        tabbedPane.addTab("Gestión de Proyectos", crearIcono("🌱", PaletaUI.AZUL_ENERGETICO), moduloProyectos);
+        aplicarEstilosTabla(moduloProyectos.getTabla()); // Aplicar estilos a la tabla del moduloProyectos
 
-        // Botón Crear
-        gbc.gridx = 0;
-        gbc.gridy = 3; // Ajusta la fila ya que no hay checkbox
-        gbc.gridwidth = 2; // Ocupa dos columnas
-        gbc.anchor = GridBagConstraints.CENTER;
-        crearButton = new JButton("Crear Proyecto");
-        crearButton.setBackground(PaletaUI.PRIMARIO_AMARILLO_ENERGIA); // Color de botón primario
-        crearButton.setForeground(PaletaUI.TEXTO_PRINCIPAL_GRIS_OSCURO); // Texto oscuro para contraste
-        crearButton.setFont(new Font("Arial", Font.BOLD, 14)); // Fuente negrita
-        crearButton.setBorder(BorderFactory.createLineBorder(PaletaUI.ENFASIS_ECOLOGICO_VERDE_OSCURO, 2)); // Borde ecológico
-        crearButton.addActionListener(this);
-        panel.add(crearButton, gbc);
+
+        // Área de log mejorada
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        JScrollPane logScroll = new JScrollPane(logArea);
+        logScroll.setBorder(createTitledBorder("Registro del Sistema"));
+        logScroll.setPreferredSize(new Dimension(0, 150));
+
+        // Añadir componentes al panel principal
+        mainPanel.add(createHeaderPanel(), BorderLayout.NORTH);
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        mainPanel.add(logScroll, BorderLayout.SOUTH);
+
+        add(mainPanel);
     }
+     
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == crearButton) {
-            confirmarYCrearProyecto(); // Llama al método que incluye la confirmación
-        }
-    }
-
-    /**
-     * Muestra una ventana de confirmación antes de proceder con la creación del proyecto.
-     * Esta es la aplicación del "Decorator" a la acción de creación.
-     */
-    private void confirmarYCrearProyecto() {
-        String nombre = crearNombreTextField.getText();
-        String tipoFuente = (String) crearTipoFuenteComboBox.getSelectedItem();
-        String capacidadStr = crearCapacidadTextField.getText();
-
-        if (nombre.isEmpty() || capacidadStr.isEmpty()) {
-            detallesTextArea.append("Error: Nombre y Capacidad son campos obligatorios para crear.\n");
-            return;
-        }
-
+    private JPanel createHeaderPanel() {
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(PaletaUI.AZUL_ENERGETICO);
+        header.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
+        JLabel title = new JLabel("Sistema de Gestión de Energía Sostenible");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(Color.WHITE);
+        
+        JLabel subtitle = new JLabel("Versión con Proxy de Caché");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(220, 220, 220));
+        
+        JPanel textPanel = new JPanel(new GridLayout(2, 1));
+        textPanel.setBackground(PaletaUI.AZUL_ENERGETICO);
+        textPanel.add(title);
+        textPanel.add(subtitle);
+        
+        header.add(textPanel, BorderLayout.WEST);
+        
+        // Añadir logo si está disponible
         try {
-            double capacidad = Double.parseDouble(capacidadStr);
+            ImageIcon logo = new ImageIcon(getClass().getResource("/icons/energy-logo.png"));
+            JLabel logoLabel = new JLabel(new ImageIcon(logo.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
+            header.add(logoLabel, BorderLayout.EAST);
+        } catch (Exception e) {
+            // Si no hay logo, continuar sin él
+        }
+        
+        return header;
+    }
 
-            // Mensaje de confirmación que actúa como nuestro "Decorator de Acción"
-            int confirmacion = JOptionPane.showConfirmDialog(
-                this,
-                "¿Estás seguro de crear el proyecto:\n" +
-                "Nombre: " + nombre + "\n" +
-                "Fuente: " + tipoFuente + "\n" +
-                "Capacidad: " + capacidad + " MW?",
-                "Confirmar Creación de Proyecto",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-            );
+    private TitledBorder createTitledBorder(String title) {
+        return BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(PaletaUI.BORDE_SUAVE, 1),
+            title,
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 12),
+            PaletaUI.GRIS_OSCURO
+        );
+    }
 
-            if (confirmacion == JOptionPane.YES_OPTION) {
-                // Si el usuario confirma, entonces procedemos con la creación
-                int idCreado = controlador.crearProyectoEnergia(nombre, tipoFuente, capacidad);
-
-                if (idCreado > 0) {
-                    detallesTextArea.append("Proyecto creado con ID: " + idCreado + "\n");
-                    detallesTextArea.append("Detalles del proyecto: " + nombre + ", " + tipoFuente + ", " + capacidad + " MW\n");
-                } else {
-                    detallesTextArea.append("Error al crear el proyecto en la base de datos.\n");
-                }
-                limpiarCamposCrear();
-            } else {
-                detallesTextArea.append("Creación de proyecto cancelada por el usuario.\n");
+    private Icon crearIcono(String emoji, Color bgColor) {
+        JLabel label = new JLabel(emoji);
+        label.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+        label.setOpaque(true);
+        label.setBackground(bgColor);
+        label.setForeground(Color.WHITE);
+        label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        return new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                label.setBounds(x, y, getIconWidth(), getIconHeight());
+                label.paint(g);
             }
-
-        } catch (NumberFormatException ex) {
-            detallesTextArea.append("Error: La capacidad debe ser un número válido.\n");
-        } catch (Exception ex) {
-            detallesTextArea.append("Error al crear proyecto: " + ex.getMessage() + "\n");
-            ex.printStackTrace();
+            
+            @Override
+            public int getIconWidth() {
+                return label.getPreferredSize().width;
+            }
+            
+            @Override
+            public int getIconHeight() {
+                return label.getPreferredSize().height;
+            }
+        };
+    }
+    
+     private void aplicarEstilosTabla(JTable tabla) {
+        if (tabla != null) { // Verificar si la tabla existe
+            tabla.setDefaultEditor(Object.class, new DefaultCellEditor(new JTextField()));
+            tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+            tabla.getTableHeader().setBackground(PaletaUI.AZUL_ENERGETICO);
+            tabla.getTableHeader().setForeground(Color.WHITE);
+            tabla.setGridColor(PaletaUI.BORDE_SUAVE);
+            tabla.setRowHeight(25);
+            tabla.setShowGrid(true);
+            tabla.setSelectionBackground(PaletaUI.AMARILLO_SOLAR);
+            tabla.setSelectionForeground(Color.BLACK);
         }
     }
 
-    private void limpiarCamposCrear() {
-        crearNombreTextField.setText("");
-        crearCapacidadTextField.setText("");
-        crearTipoFuenteComboBox.setSelectedIndex(0);
+    private void applyModernStyles() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+            // Estilos globales (mejorados para mayor consistencia)
+            UIManager.put("Panel.background", PaletaUI.BLANCO_NUBE); // Fondo principal
+            UIManager.put("TabbedPane.background", PaletaUI.BLANCO_NUBE); // Fondo pestañas
+            UIManager.put("TabbedPane.foreground", PaletaUI.GRIS_OSCURO); // Texto pestañas
+            UIManager.put("TabbedPane.selected", PaletaUI.AZUL_ENERGETICO); // Pestaña seleccionada
+            UIManager.put("TabbedPane.borderHighlightColor", PaletaUI.AMARILLO_SOLAR); // Resaltado pestaña
+            UIManager.put("Label.foreground", PaletaUI.GRIS_OSCURO); // Color del texto de las etiquetas
+            UIManager.put("TextField.background", PaletaUI.BLANCO_NUBE); // Fondo de los campos de texto
+            UIManager.put("TextField.foreground", PaletaUI.GRIS_OSCURO); // Texto de los campos de texto
+            UIManager.put("ComboBox.background", PaletaUI.BLANCO_NUBE); // Fondo de los ComboBox
+            UIManager.put("ComboBox.foreground", PaletaUI.GRIS_OSCURO); // Texto de los ComboBox
+            UIManager.put("Button.background", PaletaUI.BOTON_PRIMARIO); // Fondo de los botones
+            UIManager.put("Button.foreground", Color.WHITE); // Texto de los botones
+            UIManager.put("Button.font", new Font("Segoe UI", Font.BOLD, 12)); // Fuente de los botones
+            UIManager.put("Button.border", BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(PaletaUI.BORDE_ACTIVO, 1), BorderFactory.createEmptyBorder(8, 20, 8, 20))); // Borde de los botones
+            UIManager.put("Button.focus", Color.WHITE); // Color de enfoque de los botones
+
+
+            // Estilo para JList (añadido)
+            UIManager.put("List.background", PaletaUI.BLANCO_NUBE); // Fondo de la lista
+            UIManager.put("List.foreground", PaletaUI.GRIS_OSCURO); // Texto de la lista
+
+
+            // Estilo para JTextArea (logArea)
+            logArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+            logArea.setBackground(PaletaUI.BLANCO_NUBE);
+            logArea.setForeground(PaletaUI.GRIS_OSCURO);
+            logArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            // Estilo para JOptionPane 
+            UIManager.put("OptionPane.background", PaletaUI.BLANCO_NUBE);
+            UIManager.put("OptionPane.messageForeground", PaletaUI.GRIS_OSCURO);
+            UIManager.put("OptionPane.messageFont", new Font("Segoe UI", Font.PLAIN, 14));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupControlador() {
+    this.controlador = new ProyectoEnergiaControlador(logArea);
+    this.commandManager = new CommandManager(); // Inicializa el CommandManager
+    logMessage("Sistema iniciado con Proxy de Caché para Proyectos de Energía");
+    logMessage("Primeras consultas irán a BD, siguientes usará caché");
+}
+
+    public void logMessage(String message) {
+    SwingUtilities.invokeLater(() -> {
+        logArea.append("[Sistema] " + message + "\n");
+        logArea.setCaretPosition(logArea.getDocument().getLength());
+    });
+}
+
+    public static void mostrarMensajeExito(Component parent, String mensaje) {
+    mostrarMensajePersonalizado(parent, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE, PaletaUI.VERDE_SUSTENTABLE);
+}
+
+    public static void mostrarMensajeError(Component parent, String mensaje) {
+    mostrarMensajePersonalizado(parent, mensaje, "Error", JOptionPane.ERROR_MESSAGE, PaletaUI.BOTON_PELIGRO);
+}
+
+    public static void mostrarMensajeAdvertencia(Component parent, String mensaje) {
+        mostrarMensajePersonalizado(parent, mensaje, "Advertencia", JOptionPane.WARNING_MESSAGE, PaletaUI.NARANJA_ALERTA);
+    }
+
+    public static void mostrarMensajeInformacion(Component parent, String mensaje) {
+        mostrarMensajePersonalizado(parent, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE, PaletaUI.AZUL_ENERGETICO);
+    }
+
+    private static void mostrarMensajePersonalizado(Component parent, String mensaje, String titulo, int tipoMensaje, Color color) {
+        JOptionPane pane = new JOptionPane(mensaje, tipoMensaje);
+        JDialog dialog = pane.createDialog(parent, titulo);
+        
+        // Personalización del diálogo
+        dialog.getContentPane().setBackground(PaletaUI.BLANCO_NUBE);
+        
+        // Personalización de botones
+        for (Component comp : pane.getComponents()) {
+            if (comp instanceof JButton) {
+                JButton button = (JButton) comp;
+                button.setBackground(color);
+                button.setForeground(Color.WHITE);
+                button.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+                button.setFocusPainted(false);
+                button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+        }
+        
+        dialog.setVisible(true);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(ProyectoEnergiaCardGUI::new);
+        SwingUtilities.invokeLater(() -> {
+            new ProyectoEnergiaCardGUI();
+        });
     }
 }

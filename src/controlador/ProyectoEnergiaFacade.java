@@ -1,25 +1,56 @@
 package controlador;
 
+import modelo.IProyectoEnergiaDAO;
 import modelo.ProyectoEnergia;
-import modelo.ProyectoEnergiaDAO;
-import modelo.ProyectoEnergiaFactory;
+import modelo.ProyectoEnergiaDAOProxy;
+import java.util.List;
 
 public class ProyectoEnergiaFacade {
-
-    private ProyectoEnergiaDAO proyectoEnergiaDAO;
-    private ProyectoEnergiaFactory proyectoEnergiaFactory;
+    private final IProyectoEnergiaDAO proyectoEnergiaDAO;
 
     public ProyectoEnergiaFacade() {
-        this.proyectoEnergiaDAO = new ProyectoEnergiaDAO();
-        this.proyectoEnergiaFactory = new ProyectoEnergiaFactory();
+        // Usamos el Proxy en lugar del DAO directo
+        this.proyectoEnergiaDAO = new ProyectoEnergiaDAOProxy();
     }
 
     public int crearProyectoEnergia(String nombre, String tipoFuente, double capacidad) {
-        ProyectoEnergia nuevoProyecto = proyectoEnergiaFactory.crearProyecto(tipoFuente);
-        nuevoProyecto.setNombreProyecto(nombre);
-        nuevoProyecto.setCapacidadMW(capacidad);
-        // El tipoFuente ya está seteado por la factory al crear el objeto
+        ProyectoEnergia nuevoProyecto = new ProyectoEnergia(0, nombre, tipoFuente, capacidad);
+        int idGenerado = proyectoEnergiaDAO.crearProyectoEnergia(nuevoProyecto);
+        
+        if (idGenerado != -1) {
+            System.out.println("[Fachada] Proyecto creado con ID: " + idGenerado);
+        } else {
+            System.err.println("[Fachada] Error al crear proyecto");
+        }
+        
+        return idGenerado;
+    }
 
-        return proyectoEnergiaDAO.ejecutarCRUD("CREATE", nuevoProyecto);
+    public ProyectoEnergia leerProyectoEnergia(int id) {
+        System.out.println("[Fachada] Solicitando proyecto con ID: " + id);
+        return proyectoEnergiaDAO.leerProyectoEnergia(id);
+    }
+
+    public List<ProyectoEnergia> leerTodosProyectosEnergia() {
+        System.out.println("[Fachada] Solicitando todos los proyectos");
+        return proyectoEnergiaDAO.leerTodosProyectosEnergia();
+    }
+
+    public boolean actualizarProyectoEnergia(int id, String nombre, String tipoFuente, double capacidad) {
+        System.out.println("[Fachada] Actualizando proyecto ID: " + id);
+        ProyectoEnergia proyecto = new ProyectoEnergia(id, nombre, tipoFuente, capacidad);
+        return proyectoEnergiaDAO.actualizarProyectoEnergia(proyecto);
+    }
+
+    public boolean eliminarProyectoEnergia(int id) {
+        System.out.println("[Fachada] Eliminando proyecto ID: " + id);
+        return proyectoEnergiaDAO.eliminarProyectoEnergia(id);
+    }
+
+    // Método adicional para limpiar la caché (útil para testing)
+    public void limpiarCache() {
+        if (proyectoEnergiaDAO instanceof ProyectoEnergiaDAOProxy) {
+            ((ProyectoEnergiaDAOProxy) proyectoEnergiaDAO).limpiarCache();
+        }
     }
 }

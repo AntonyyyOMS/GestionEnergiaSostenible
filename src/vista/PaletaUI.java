@@ -1,24 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package vista;
-
-/**
- *
- * @author MI PC
- */
 
 import java.awt.Color;
 
 public class PaletaUI {
-    // Colores de la paleta UI - ODS 7: Energía Asequible y No Contaminante
-    public static final Color PRIMARIO_AMARILLO_ENERGIA = Color.decode("#FFD60A");
-    public static final Color SECUNDARIO_VERDE_CLARO = Color.decode("#A8D080");
-    public static final Color FONDO_PRINCIPAL_BLANCO_CALIDO = Color.decode("#FDFCF7");
-    public static final Color FONDO_SECCIONES_AZUL_CLARO = Color.decode("#A9D6E5");
-    public static final Color TEXTO_PRINCIPAL_GRIS_OSCURO = Color.decode("#2B2B2B");
-    public static final Color TEXTO_SECUNDARIO_GRIS_MEDIO = Color.decode("#6B6B6B");
-    public static final Color ENFASIS_ECOLOGICO_VERDE_OSCURO = Color.decode("#2F5233");
-    public static final Color BORDES_SOMBRAS_GRIS_CLARO = Color.decode("#D9D9D9");
+    // Paleta renovada para energía sostenible
+    public static final Color AZUL_ENERGETICO = Color.decode("#2A7B9B"); // Azul principal
+    public static final Color AMARILLO_SOLAR = Color.decode("#FFD700"); // Amarillo dorado
+    public static final Color VERDE_SUSTENTABLE = Color.decode("#4CAF50"); // Verde ecológico
+    public static final Color BLANCO_NUBE = Color.decode("#F5F7FA"); // Fondo claro
+    public static final Color GRIS_OSCURO = Color.decode("#263238"); // Texto
+    public static final Color NARANJA_ALERTA = Color.decode("#FF9800"); // Para advertencias
+    
+    // Degradados adicionales
+    public static final Color AZUL_CLARO = Color.decode("#E1F5FE");
+    public static final Color AMARILLO_CLARO = Color.decode("#FFF9C4");
+    
+    // Colores para componentes específicos
+    public static final Color BOTON_PRIMARIO = AZUL_ENERGETICO;
+    public static final Color BOTON_SECUNDARIO = AMARILLO_SOLAR;
+    public static final Color BOTON_EXITO = VERDE_SUSTENTABLE;
+    public static final Color BOTON_PELIGRO = Color.decode("#F44336");
+    
+    // Bordes y acentos
+    public static final Color BORDE_ACTIVO = AMARILLO_SOLAR;
+    public static final Color BORDE_SUAVE = Color.decode("#CFD8DC");
 }

@@ -3,51 +3,57 @@ package modelo;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 public class ConexionBD {
+    private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=SistemaGestionEnergiaDB;encrypt=true;trustServerCertificate=true;";
+    private static final String USUARIO = "sa";
+    private static final String CONTRASENA = "admin";
 
-    private static ConexionBD instancia;
-    private Connection conexion;
-
-    private final String url = "jdbc:sqlserver://localhost:1433;databaseName=SistemaGestionEnergiaDB;encrypt=false;trustServerCertificate=true;";
-    private final String usuario = "sa"; // Tu usuario de SQL Server
-    private final String clave = "axia2005"; // Tu contraseña de SQL Server
+    private static ConexionBD instance;
+    private Connection connection;
 
     private ConexionBD() {
         try {
-            // Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver"); // Ya no es estrictamente necesario
-            conexion = DriverManager.getConnection(url, usuario, clave);
-            System.out.println("Conexión a la base de datos establecida correctamente.");
-        } catch (SQLException e) {
-            System.err.println("Error al conectar a la base de datos: " + e.getMessage());
-            e.printStackTrace();
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            System.out.println("Driver JDBC de SQL Server cargado.");
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Error: No se pudo cargar el driver JDBC de SQL Server.");
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error de Driver de BD: " + ex.getMessage(), "Error de Conexión", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public static ConexionBD getInstancia() {
-        if (instancia == null) {
-            synchronized (ConexionBD.class) {
-                if (instancia == null) {
-                    instancia = new ConexionBD();
-                }
+    public static synchronized ConexionBD getInstance() {
+        if (instance == null) {
+            instance = new ConexionBD();
+        }
+        return instance;
+    }
+
+    public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(URL, USUARIO, CONTRASENA);
+                System.out.println("Conexión a la base de datos establecida.");
             }
+        } catch (SQLException ex) {
+            System.err.println("Error al conectar con la base de datos: " + ex.getMessage());
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos:\n" + ex.getMessage(), "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+            connection = null;
         }
-        return instancia;
+        return connection;
     }
 
-    public Connection getConexion() {
-        return conexion;
-    }
-
-    public static void cerrarConexion() {
-        if (instancia != null && instancia.conexion != null) {
+    public void closeConnection() {
+        if (connection != null) {
             try {
-                instancia.conexion.close();
+                connection.close();
                 System.out.println("Conexión a la base de datos cerrada.");
-                instancia = null;
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar la conexión: " + e.getMessage());
-                e.printStackTrace();
+            } catch (SQLException ex) {
+                System.err.println("Error al cerrar la conexión: " + ex.getMessage());
+                ex.printStackTrace();
             }
         }
     }
