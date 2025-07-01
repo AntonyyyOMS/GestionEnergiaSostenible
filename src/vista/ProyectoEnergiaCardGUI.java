@@ -194,7 +194,7 @@ public class ProyectoEnergiaCardGUI extends JFrame {
     }
 
     private void setupControlador() {
-    this.controlador = new ProyectoEnergiaControlador(logArea);
+    this.controlador = new ProyectoEnergiaControlador(null);
     this.commandManager = new CommandManager(); // Inicializa el CommandManager
     logMessage("Sistema iniciado con Proxy de Caché para Proyectos de Energía");
     logMessage("Primeras consultas irán a BD, siguientes usará caché");

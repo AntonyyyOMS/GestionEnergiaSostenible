@@ -48,24 +48,18 @@ public class RegistroConsumoDAO {
                 callableStatement.setNull(3, Types.DATE); // Si la fecha es opcional y viene nula
             }
 
-            // 4. @tipo
             callableStatement.setString(4, registro.getTipo());
 
-            // 5. @consumo
             callableStatement.setDouble(5, registro.getConsumo());
 
-            // 6. @unidad
             callableStatement.setString(6, registro.getUnidad());
 
-            // 7. @costo
             callableStatement.setBigDecimal(7, registro.getCosto());
 
-            // 8. @resultado (parámetro de salida)
             callableStatement.registerOutParameter(8, Types.INTEGER);
 
             callableStatement.execute();
 
-            // Obtener el ID generado por SCOPE_IDENTITY() desde el parámetro de salida @resultado
             idGenerado = callableStatement.getInt(8);
 
         } catch (SQLException e) {

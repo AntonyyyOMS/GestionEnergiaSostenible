@@ -40,7 +40,7 @@ public class ModuloGestionProyectosGUI extends JPanel {
     private JTextField txtEditCapacidadMW;
 
     public ModuloGestionProyectosGUI() {
-    this.controlador = new ProyectoEnergiaControlador(null);
+    this.controlador = new ProyectoEnergiaControlador(new ProyectoEnergiaVista(null));
     this.commandManager = new CommandManager(); // Añade esta línea
     setLayout(new BorderLayout(10, 10));
     
@@ -62,7 +62,7 @@ public class ModuloGestionProyectosGUI extends JPanel {
         gbc.gridx = 1; txtNombreProyecto = new JTextField(20); pnlCrear.add(txtNombreProyecto, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1; pnlCrear.add(new JLabel("Tipo de Fuente:"), gbc);
-        gbc.gridx = 1; cmbTipoFuente = new JComboBox<>(new String[]{"Solar", "Eólica", "Hidroeléctrica", "Geotérmica", "Biomasa", "Nuclear", "Térmica"}); pnlCrear.add(cmbTipoFuente, gbc);
+gbc.gridx = 1; cmbTipoFuente = new JComboBox<>(new String[]{"Solar", "Eólica", "Hidroeléctrica", "Geotérmica", "Biomasa", "Nuclear", "Térmica"}); pnlCrear.add(cmbTipoFuente, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2; pnlCrear.add(new JLabel("Capacidad (MW):"), gbc);
         gbc.gridx = 1; txtCapacidadMW = new JTextField(20); pnlCrear.add(txtCapacidadMW, gbc);
@@ -272,7 +272,7 @@ public class ModuloGestionProyectosGUI extends JPanel {
                 modeloTabla.addRow(new Object[]{p.getId(), p.getNombreProyecto(), p.getTipoFuente(), p.getCapacidadMW()});
             }
         } else {
-             JOptionPane.showMessageDialog(this, "No se pudieron cargar los proyectos. Verifique la conexión a la base de datos.", "Error de Carga", JOptionPane.ERROR_MESSAGE);
+JOptionPane.showMessageDialog(this, "No se pudieron cargar los proyectos. Verifique la conexión a la base de datos.", "Error de Carga", JOptionPane.ERROR_MESSAGE);
         }
     }
     
